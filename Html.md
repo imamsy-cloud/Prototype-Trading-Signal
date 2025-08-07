@@ -1,23 +1,412 @@
 <!DOCTYPE html>
-<html lang="en" class="">
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SignalMax Prototype</title>
+    <title>SignalMax - Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            '50': '#f0fdf4',
+                            '100': '#dcfce7',
+                            '200': '#bbf7d0',
+                            '300': '#86efac',
+                            '400': '#4ade80',
+                            '500': '#22c55e',
+                            '600': '#16a34a',
+                            '700': '#15803d',
+                            '800': '#166534',
+                            '900': '#14532d',
+                            '950': '#052e16',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Custom scrollbar for a cleaner look */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
+        .admin-page {
+            display: none;
         }
-        .custom-scrollbar::-webkit-scrollbar-track {
+        .admin-page.active {
+            display: block;
+        }
+        .sidebar-link.active {
+            background-color: #16a34a; /* primary-600 */
+            color: white;
+        }
+        .sidebar-link.active i {
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white dark:bg-gray-800 shadow-md flex-shrink-0 flex flex-col">
+            <div class="h-16 flex items-center justify-center border-b dark:border-gray-700">
+                <i class="fas fa-chart-line text-2xl text-primary-500"></i>
+                <h1 class="text-xl font-bold ml-2">SignalMax</h1>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a href="#" data-target="page-dashboard" class="sidebar-link active flex items-center px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-500 hover:text-white">
+                    <i class="fas fa-tachometer-alt w-6 text-primary-500"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" data-target="page-users" class="sidebar-link flex items-center px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-500 hover:text-white">
+                    <i class="fas fa-users w-6 text-primary-500"></i>
+                    <span>Manajemen User</span>
+                </a>
+                <a href="#" data-target="page-signals" class="sidebar-link flex items-center px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-500 hover:text-white">
+                    <i class="fas fa-signal w-6 text-primary-500"></i>
+                    <span>Manajemen Sinyal</span>
+                </a>
+                <a href="#" data-target="page-content" class="sidebar-link flex items-center px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-500 hover:text-white">
+                    <i class="fas fa-book-open w-6 text-primary-500"></i>
+                    <span>Manajemen Konten</span>
+                </a>
+                <a href="#" data-target="page-events" class="sidebar-link flex items-center px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-500 hover:text-white">
+                    <i class="fas fa-calendar-alt w-6 text-primary-500"></i>
+                    <span>Manajemen Event</span>
+                </a>
+                 <a href="#" data-target="page-payments" class="sidebar-link flex items-center px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-500 hover:text-white">
+                    <i class="fas fa-receipt w-6 text-primary-500"></i>
+                    <span>Pembayaran Manual</span>
+                </a>
+                <a href="#" data-target="page-settings" class="sidebar-link flex items-center px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-500 hover:text-white">
+                    <i class="fas fa-cog w-6 text-primary-500"></i>
+                    <span>Pengaturan</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t dark:border-gray-700">
+                 <a href="#" class="flex items-center px-4 py-2 rounded-lg text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50">
+                    <i class="fas fa-sign-out-alt w-6"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="h-16 bg-white dark:bg-gray-800 shadow-sm flex items-center justify-between px-6 flex-shrink-0">
+                <h2 id="page-title" class="text-xl font-semibold">Dashboard</h2>
+                <div class="flex items-center space-x-4">
+                    <button id="theme-toggle-btn" class="text-gray-500 dark:text-gray-400 hover:text-primary-500">
+                        <i class="fas fa-sun"></i>
+                    </button>
+                    <div class="relative">
+                        <i class="fas fa-bell text-xl text-gray-500 dark:text-gray-400"></i>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">3</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://placehold.co/40x40/10b981/ffffff?text=A" class="w-8 h-8 rounded-full" alt="Admin Avatar">
+                        <span class="font-semibold text-sm">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content Area -->
+            <div class="flex-1 overflow-y-auto p-6">
+                
+                <!-- DASHBOARD PAGE -->
+                <div id="page-dashboard" class="admin-page active">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Total Pengguna</p>
+                                    <p class="text-3xl font-bold">1,257</p>
+                                </div>
+                                <div class="bg-primary-100 dark:bg-primary-900/50 p-3 rounded-full">
+                                    <i class="fas fa-users text-2xl text-primary-500"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Member Premium</p>
+                                    <p class="text-3xl font-bold">312</p>
+                                </div>
+                                <div class="bg-yellow-100 dark:bg-yellow-900/50 p-3 rounded-full">
+                                    <i class="fas fa-star text-2xl text-yellow-500"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Sinyal Aktif</p>
+                                    <p class="text-3xl font-bold">8</p>
+                                </div>
+                                <div class="bg-red-100 dark:bg-red-900/50 p-3 rounded-full">
+                                    <i class="fas fa-broadcast-tower text-2xl text-red-500"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Pendapatan Bulan Ini</p>
+                                    <p class="text-3xl font-bold">Rp 15jt</p>
+                                </div>
+                                <div class="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-full">
+                                    <i class="fas fa-wallet text-2xl text-blue-500"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+                        <h3 class="font-semibold mb-4">Konten Terpopuler</h3>
+                        <ul class="space-y-3">
+                            <li class="flex justify-between items-center"><span>Artikel: Dasar-dasar Candlestick</span> <span class="text-gray-500">1.2k views</span></li>
+                            <li class="flex justify-between items-center"><span>Video: Manajemen Risiko</span> <span class="text-gray-500">980 views</span></li>
+                            <li class="flex justify-between items-center"><span>E-Book: Psikologi Trading</span> <span class="text-gray-500">750 downloads</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- USERS PAGE -->
+                <div id="page-users" class="admin-page">
+                    <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-semibold">Daftar Pengguna</h3>
+                            <input type="text" placeholder="Cari pengguna..." class="px-3 py-1.5 bg-gray-50 dark:bg-gray-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 uppercase">
+                                <tr>
+                                    <th class="p-3">Nama</th>
+                                    <th class="p-3">Email</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3">Tanggal Bergabung</th>
+                                    <th class="p-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b dark:border-gray-700">
+                                    <td class="p-3 font-medium">Andi Wijaya</td>
+                                    <td class="p-3">andi.wijaya@email.com</td>
+                                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Premium</span></td>
+                                    <td class="p-3">2024-01-15</td>
+                                    <td class="p-3 space-x-2"><button class="text-blue-500"><i class="fas fa-edit"></i></button><button class="text-red-500"><i class="fas fa-ban"></i></button></td>
+                                </tr>
+                                <tr class="border-b dark:border-gray-700">
+                                    <td class="p-3 font-medium">Budi Santoso</td>
+                                    <td class="p-3">budi.s@email.com</td>
+                                    <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">Free</span></td>
+                                    <td class="p-3">2024-03-01</td>
+                                    <td class="p-3 space-x-2"><button class="text-blue-500"><i class="fas fa-edit"></i></button><button class="text-red-500"><i class="fas fa-ban"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SIGNALS PAGE -->
+                <div id="page-signals" class="admin-page">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-1 bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+                            <h3 class="font-semibold mb-4">Buat Sinyal Baru</h3>
+                            <form class="space-y-4">
+                                <div>
+                                    <label class="text-sm font-medium">Pair</label>
+                                    <input type="text" placeholder="e.g., BTC/USDT" class="mt-1 w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Rekomendasi</label>
+                                    <select class="mt-1 w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                        <option>BUY</option>
+                                        <option>SELL</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Stop Loss (SL)</label>
+                                    <input type="number" class="mt-1 w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Take Profit (TP)</label>
+                                    <div class="mt-1 space-y-2">
+                                        <input type="number" placeholder="TP 1" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                        <input type="number" placeholder="TP 2 (Opsional)" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                        <input type="number" placeholder="TP 3 (Opsional)" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="isPremiumSignal" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                    <label for="isPremiumSignal" class="ml-2 block text-sm">Sinyal Premium</label>
+                                </div>
+                                <button type="submit" class="w-full bg-primary-600 text-white py-2 rounded-lg hover:bg-primary-700 font-semibold">Kirim Sinyal</button>
+                            </form>
+                        </div>
+                        <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+                            <h3 class="font-semibold mb-4">Daftar Sinyal Terkirim</h3>
+                             <p class="text-gray-500">Daftar sinyal akan ditampilkan di sini.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- CONTENT PAGE -->
+                <div id="page-content" class="admin-page">
+                    <p class="text-gray-500">Halaman untuk mengelola Artikel, Video, dan E-Book.</p>
+                </div>
+
+                <!-- EVENTS PAGE -->
+                <div id="page-events" class="admin-page">
+                     <p class="text-gray-500">Halaman untuk mengelola event online dan offline.</p>
+                </div>
+
+                <!-- PAYMENTS PAGE -->
+                <div id="page-payments" class="admin-page">
+                    <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+                        <h3 class="font-semibold mb-4">Konfirmasi Pembayaran Manual</h3>
+                        <table class="w-full text-sm text-left">
+                             <thead class="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 uppercase">
+                                <tr>
+                                    <th class="p-3">User ID</th>
+                                    <th class="p-3">Email</th>
+                                    <th class="p-3">Waktu Request</th>
+                                    <th class="p-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b dark:border-gray-700">
+                                    <td class="p-3 font-mono">user-xyz-123</td>
+                                    <td class="p-3">siti.a@email.com</td>
+                                    <td class="p-3">2024-05-20 10:30</td>
+                                    <td class="p-3"><button class="bg-green-500 text-white px-3 py-1 rounded-md text-xs hover:bg-green-600">Konfirmasi</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SETTINGS PAGE -->
+                <div id="page-settings" class="admin-page space-y-6">
+                    <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+                         <h3 class="font-semibold mb-4">Pengaturan Tampilan Beranda</h3>
+                         <p class="text-sm text-gray-500 mb-4">Seret dan lepas untuk mengatur urutan konten di beranda aplikasi.</p>
+                         <ul class="space-y-2" id="home-layout-list">
+                             <li class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-between cursor-move"><span class="flex items-center"><i class="fas fa-grip-vertical mr-3 text-gray-400"></i> Banner Promosi</span><button class="text-gray-400 hover:text-red-500"><i class="fas fa-times-circle"></i></button></li>
+                             <li class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-between cursor-move"><span class="flex items-center"><i class="fas fa-grip-vertical mr-3 text-gray-400"></i> Sinyal Premium</span><button class="text-gray-400 hover:text-red-500"><i class="fas fa-times-circle"></i></button></li>
+                             <li class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-between cursor-move"><span class="flex items-center"><i class="fas fa-grip-vertical mr-3 text-gray-400"></i> Artikel Edukasi</span><button class="text-gray-400 hover:text-red-500"><i class="fas fa-times-circle"></i></button></li>
+                             <li class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-between cursor-move"><span class="flex items-center"><i class="fas fa-grip-vertical mr-3 text-gray-400"></i> Postingan Komunitas</span><button class="text-gray-400 hover:text-red-500"><i class="fas fa-times-circle"></i></button></li>
+                         </ul>
+                         <button class="mt-4 w-full border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center justify-center">
+                            <i class="fas fa-plus mr-2"></i> Tambah Konten
+                         </button>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+                        <h3 class="font-semibold mb-4">Pengaturan Aplikasi</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-sm font-medium">Nama Aplikasi</label>
+                                <input type="text" value="SignalMax" class="mt-1 w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium">Logo Aplikasi</label>
+                                <div class="mt-1 flex items-center space-x-4">
+                                    <img src="https://placehold.co/64x64/22c55e/ffffff?text=S" class="w-16 h-16 rounded-lg bg-gray-200" alt="Current Logo">
+                                    <input type="file" class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+                        <h3 class="font-semibold mb-4">Pengaturan Iklan (AdMob)</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-sm font-medium">ID Unit Iklan Banner</label>
+                                <input type="text" placeholder="ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx" class="mt-1 w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono text-xs">
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium">ID Unit Iklan Interstitial</label>
+                                <input type="text" placeholder="ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx" class="mt-1 w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono text-xs">
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium">ID Unit Iklan Rewarded</label>
+                                <input type="text" placeholder="ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx" class="mt-1 w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono text-xs">
+                            </div>
+                        </div>
+                    </div>
+                     <div class="pt-2 text-right">
+                        <button class="bg-primary-600 text-white py-2 px-6 rounded-lg hover:bg-primary-700 font-semibold">Simpan Semua Pengaturan</button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+            const adminPages = document.querySelectorAll('.admin-page');
+            const pageTitle = document.getElementById('page-title');
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            const html = document.documentElement;
+
+            // Page switching logic
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    const targetId = link.dataset.target;
+                    
+                    // Update active link
+                    sidebarLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+
+                    // Show target page
+                    adminPages.forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    document.getElementById(targetId).classList.add('active');
+
+                    // Update page title
+                    pageTitle.textContent = link.querySelector('span').textContent;
+                });
+            });
+
+            // Theme toggle logic
+            const sunIcon = '<i class="fas fa-sun"></i>';
+            const moonIcon = '<i class="fas fa-moon"></i>';
+
+            const updateThemeIcon = () => {
+                if (html.classList.contains('dark')) {
+                    themeToggleBtn.innerHTML = sunIcon;
+                } else {
+                    themeToggleBtn.innerHTML = moonIcon;
+                }
+            };
+            
+            themeToggleBtn.addEventListener('click', () => {
+                html.classList.toggle('dark');
+                updateThemeIcon();
+            });
+
+            // Set initial theme icon
+            updateThemeIcon();
+        });
+    </script>
+
+</body>
+</html>
             background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
